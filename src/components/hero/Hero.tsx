@@ -1,23 +1,112 @@
-"use client";
+﻿"use client";
 
-import { motion } from "framer-motion";
+import {
+  motion,
+  useMotionValue,
+  useReducedMotion,
+  useSpring,
+  useTransform,
+} from "framer-motion";
 import { ArrowDown, ArrowUpRight } from "lucide-react";
+import TechConstellation from "@/components/hero/TechConstellation";
 
 export default function Hero() {
+  const reduceMotion = useReducedMotion();
+
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  const smoothX = useSpring(mouseX, {
+    stiffness: 80,
+    damping: 20,
+    mass: 0.6,
+  });
+
+  const smoothY = useSpring(mouseY, {
+    stiffness: 80,
+    damping: 20,
+    mass: 0.6,
+  });
+
+  const visualX = useTransform(smoothX, [-1, 1], [-10, 10]);
+  const visualY = useTransform(smoothY, [-1, 1], [-8, 8]);
+
+  const handleVisualMove = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (reduceMotion) return;
+
+    const rect = event.currentTarget.getBoundingClientRect();
+
+    const x = (event.clientX - rect.left) / rect.width;
+    const y = (event.clientY - rect.top) / rect.height;
+
+    mouseX.set((x - 0.5) * 2);
+    mouseY.set((y - 0.5) * 2);
+  };
+
+  const resetVisual = () => {
+    mouseX.set(0);
+    mouseY.set(0);
+  };
+
   return (
     <section
       id="top"
       className="relative flex min-h-screen items-center overflow-hidden"
     >
-      <div className="pointer-events-none absolute right-[8%] top-[18%] h-[420px] w-[420px] rounded-full bg-[#657CFF]/10 blur-[120px]" />
+      {/* ATMOSPHERIC LIGHT */}
+      <motion.div
+        animate={
+          reduceMotion
+            ? undefined
+            : {
+                scale: [1, 1.12, 1],
+                opacity: [0.16, 0.24, 0.16],
+              }
+        }
+        transition={{
+          duration: 9,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+        className="pointer-events-none absolute right-[4%] top-[12%] h-[500px] w-[500px] rounded-full bg-[#657CFF]/20 blur-[150px]"
+      />
 
-      <div className="pointer-events-none absolute bottom-[8%] left-[12%] h-[280px] w-[280px] rounded-full bg-[#D6B77A]/8 blur-[100px]" />
+      <motion.div
+        animate={
+          reduceMotion
+            ? undefined
+            : {
+                scale: [1, 1.18, 1],
+                opacity: [0.06, 0.12, 0.06],
+              }
+        }
+        transition={{
+          duration: 11,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+        className="pointer-events-none absolute bottom-[4%] left-[10%] h-[360px] w-[360px] rounded-full bg-[#D6B77A]/10 blur-[130px]"
+      />
 
-      <div className="pointer-events-none absolute bottom-[12%] right-[30%] h-[260px] w-[260px] rounded-full bg-[#E28A78]/5 blur-[110px]" />
+      <motion.div
+        animate={
+          reduceMotion
+            ? undefined
+            : {
+                scale: [1, 1.25, 1],
+                opacity: [0.04, 0.1, 0.04],
+              }
+        }
+        transition={{
+          duration: 8,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+        className="pointer-events-none absolute bottom-[15%] right-[25%] h-[300px] w-[300px] rounded-full bg-[#E28A78]/10 blur-[120px]"
+      />
 
       <div className="container-editorial relative z-10 w-full pt-24">
         <div className="grid min-h-[calc(100vh-6rem)] items-center gap-8 lg:grid-cols-[1.08fr_0.92fr]">
-
           {/* HERO COPY */}
           <div>
             <motion.div
@@ -26,7 +115,12 @@ export default function Hero() {
               transition={{ duration: 0.8 }}
               className="mb-8 flex items-center gap-3"
             >
-              <span className="h-px w-10 bg-white/30" />
+              <motion.span
+                initial={{ width: 0 }}
+                animate={{ width: 40 }}
+                transition={{ duration: 0.8, delay: 0.15 }}
+                className="h-px bg-white/30"
+              />
 
               <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#D6B77A]/70">
                 Full-Stack Developer
@@ -88,9 +182,9 @@ export default function Hero() {
               transition={{ duration: 0.8, delay: 0.7 }}
               className="mt-8 max-w-[540px] text-sm leading-7 text-white/60 md:text-[15px]"
             >
-              Full-Stack Developer building modern web products,
-              automation systems and thoughtful digital experiences
-              where technology meets real-world problems.
+              Full-Stack Developer building modern web products, automation
+              systems and thoughtful digital experiences where technology meets
+              real-world problems.
             </motion.p>
 
             <motion.div
@@ -120,41 +214,319 @@ export default function Hero() {
             </motion.div>
           </div>
 
-          {/* PORTRAIT SYSTEM */}
+          {/* CINEMATIC PORTRAIT SYSTEM */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.94 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1.2, delay: 0.25 }}
-            className="relative mx-auto flex h-[520px] w-full max-w-[520px] items-center justify-center lg:h-[650px]"
+            initial={{ opacity: 0, scale: 0.9, rotateY: -8 }}
+            animate={{ opacity: 1, scale: 1, rotateY: 0 }}
+            transition={{
+              duration: 1.4,
+              delay: 0.2,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+            onMouseMove={handleVisualMove}
+            onMouseLeave={resetVisual}
+            style={{
+              x: reduceMotion ? 0 : visualX,
+              y: reduceMotion ? 0 : visualY,
+            }}
+            className="relative mx-auto flex h-[520px] w-full max-w-[560px] items-center justify-center [perspective:1400px] lg:h-[650px]"
           >
-            {/* Outer orbit */}
+            <TechConstellation />
+
+            {/* CENTRAL ATMOSPHERIC CORE */}
             <motion.div
-              animate={{ rotate: 360 }}
+              animate={
+                reduceMotion
+                  ? undefined
+                  : {
+                      scale: [1, 1.16, 1],
+                      opacity: [0.35, 0.55, 0.35],
+                    }
+              }
               transition={{
-                duration: 32,
+                duration: 6,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+              className="absolute z-0 h-[280px] w-[280px] rounded-full bg-[radial-gradient(circle,rgba(124,156,255,0.32)_0%,rgba(226,138,120,0.12)_38%,transparent_72%)] blur-2xl"
+            />
+
+            {/* ORBITAL SYSTEM */}
+            <motion.div
+              animate={
+                reduceMotion
+                  ? undefined
+                  : {
+                      rotateZ: 360,
+                    }
+              }
+              transition={{
+                duration: 34,
                 repeat: Infinity,
                 ease: "linear",
               }}
-              className="absolute z-0 h-[430px] w-[430px] rounded-full border border-white/[0.07] lg:h-[520px] lg:w-[520px]"
-            />
+              className="absolute z-0 h-[470px] w-[470px] [transform-style:preserve-3d] lg:h-[570px] lg:w-[570px]"
+              style={{
+                transform: "rotateX(64deg) rotateZ(-16deg)",
+              }}
+            >
+              <svg
+                viewBox="0 0 600 600"
+                className="absolute inset-0 h-full w-full overflow-visible"
+                aria-hidden="true"
+              >
+                <defs>
+                  <linearGradient id="orbitGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#D6B77A" stopOpacity="0" />
+                    <stop offset="35%" stopColor="#D6B77A" stopOpacity="0.85" />
+                    <stop offset="65%" stopColor="#7C9CFF" stopOpacity="0.7" />
+                    <stop offset="100%" stopColor="#E28A78" stopOpacity="0" />
+                  </linearGradient>
+                </defs>
 
-            {/* Inner orbit */}
+                <ellipse
+                  cx="300"
+                  cy="300"
+                  rx="275"
+                  ry="275"
+                  fill="none"
+                  stroke="rgba(255,255,255,0.08)"
+                  strokeWidth="1"
+                />
+
+                <motion.ellipse
+                  cx="300"
+                  cy="300"
+                  rx="275"
+                  ry="275"
+                  fill="none"
+                  stroke="url(#orbitGold)"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeDasharray="70 1150"
+                  animate={
+                    reduceMotion
+                      ? undefined
+                      : {
+                          strokeDashoffset: [0, -1220],
+                        }
+                  }
+                  transition={{
+                    duration: 5,
+                    repeat: Infinity,
+                    ease: "linear",
+                  }}
+                />
+              </svg>
+
+              <motion.span
+                animate={
+                  reduceMotion
+                    ? undefined
+                    : {
+                        rotate: 360,
+                      }
+                }
+                transition={{
+                  duration: 5,
+                  repeat: Infinity,
+                  ease: "linear",
+                }}
+                className="absolute left-1/2 top-0 h-3 w-3 -translate-x-1/2 rounded-full bg-[#D6B77A] shadow-[0_0_12px_#D6B77A,0_0_35px_rgba(214,183,122,0.7)]"
+              />
+            </motion.div>
+
+            {/* SECOND ORBIT */}
             <motion.div
-              animate={{ rotate: -360 }}
+              animate={
+                reduceMotion
+                  ? undefined
+                  : {
+                      rotateZ: -360,
+                    }
+              }
               transition={{
                 duration: 24,
                 repeat: Infinity,
                 ease: "linear",
               }}
-              className="absolute z-0 h-[330px] w-[330px] rounded-full border border-dashed border-[#D6B77A]/15 lg:h-[410px] lg:w-[410px]"
+              className="absolute z-0 h-[390px] w-[390px] [transform-style:preserve-3d] lg:h-[470px] lg:w-[470px]"
+              style={{
+                transform: "rotateX(68deg) rotateZ(38deg)",
+              }}
+            >
+              <svg
+                viewBox="0 0 500 500"
+                className="absolute inset-0 h-full w-full overflow-visible"
+                aria-hidden="true"
+              >
+                <defs>
+                  <linearGradient id="orbitBlue" x1="0%" y1="100%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#7C9CFF" stopOpacity="0" />
+                    <stop offset="45%" stopColor="#7C9CFF" stopOpacity="0.9" />
+                    <stop offset="75%" stopColor="#E28A78" stopOpacity="0.55" />
+                    <stop offset="100%" stopColor="#7C9CFF" stopOpacity="0" />
+                  </linearGradient>
+                </defs>
+
+                <ellipse
+                  cx="250"
+                  cy="250"
+                  rx="225"
+                  ry="225"
+                  fill="none"
+                  stroke="rgba(124,156,255,0.12)"
+                  strokeWidth="1"
+                  strokeDasharray="3 12"
+                />
+
+                <motion.ellipse
+                  cx="250"
+                  cy="250"
+                  rx="225"
+                  ry="225"
+                  fill="none"
+                  stroke="url(#orbitBlue)"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeDasharray="55 950"
+                  animate={
+                    reduceMotion
+                      ? undefined
+                      : {
+                          strokeDashoffset: [0, 1005],
+                        }
+                  }
+                  transition={{
+                    duration: 4,
+                    repeat: Infinity,
+                    ease: "linear",
+                  }}
+                />
+              </svg>
+
+              <motion.span
+                animate={
+                  reduceMotion
+                    ? undefined
+                    : {
+                        rotate: -360,
+                      }
+                }
+                transition={{
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "linear",
+                }}
+                className="absolute right-[10%] top-[22%] h-2.5 w-2.5 rounded-full bg-[#7C9CFF] shadow-[0_0_12px_#7C9CFF,0_0_30px_rgba(124,156,255,0.8)]"
+              />
+            </motion.div>
+
+            {/* THIRD ORBIT / CORAL ENERGY */}
+            <motion.div
+              animate={
+                reduceMotion
+                  ? undefined
+                  : {
+                      rotateZ: 360,
+                    }
+              }
+              transition={{
+                duration: 17,
+                repeat: Infinity,
+                ease: "linear",
+              }}
+              className="absolute z-[1] h-[520px] w-[520px] [transform-style:preserve-3d] lg:h-[630px] lg:w-[630px]"
+              style={{
+                transform: "rotateX(72deg) rotateZ(-55deg)",
+              }}
+            >
+              <div className="absolute inset-0 rounded-full border border-[#E28A78]/10" />
+
+              <motion.span
+                animate={
+                  reduceMotion
+                    ? undefined
+                    : {
+                        scale: [1, 1.6, 1],
+                        opacity: [0.55, 1, 0.55],
+                      }
+                }
+                transition={{
+                  duration: 2.2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+                className="absolute left-[18%] top-[9%] h-2 w-2 rounded-full bg-[#E28A78] shadow-[0_0_14px_#E28A78,0_0_38px_rgba(226,138,120,0.75)]"
+              />
+            </motion.div>
+
+            {/* MICRO PARTICLES */}
+            <motion.span
+              animate={
+                reduceMotion
+                  ? undefined
+                  : {
+                      y: [0, -18, 0],
+                      x: [0, 8, 0],
+                      opacity: [0.25, 0.8, 0.25],
+                    }
+              }
+              transition={{
+                duration: 5,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+              className="absolute left-[12%] top-[30%] h-1.5 w-1.5 rounded-full bg-[#D6B77A] shadow-[0_0_12px_#D6B77A]"
             />
 
-            {/* Portrait glow */}
-            <div className="absolute z-0 h-[300px] w-[300px] rounded-full bg-[#657CFF]/12 blur-[100px]" />
+            <motion.span
+              animate={
+                reduceMotion
+                  ? undefined
+                  : {
+                      y: [0, 12, 0],
+                      x: [0, -10, 0],
+                      opacity: [0.2, 0.7, 0.2],
+                    }
+              }
+              transition={{
+                duration: 4.5,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: 1,
+              }}
+              className="absolute right-[13%] bottom-[25%] h-1.5 w-1.5 rounded-full bg-[#7C9CFF] shadow-[0_0_12px_#7C9CFF]"
+            />
 
-            {/* Portrait */}
+            <motion.span
+              animate={
+                reduceMotion
+                  ? undefined
+                  : {
+                      scale: [1, 1.5, 1],
+                      opacity: [0.15, 0.7, 0.15],
+                    }
+              }
+              transition={{
+                duration: 3.5,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: 0.5,
+              }}
+              className="absolute left-[20%] bottom-[18%] h-1 w-1 rounded-full bg-[#E28A78] shadow-[0_0_10px_#E28A78]"
+            />
+
+            {/* PORTRAIT */}
             <motion.div
-              animate={{ y: [0, -7, 0] }}
+              animate={
+                reduceMotion
+                  ? undefined
+                  : {
+                      y: [0, -8, 0],
+                      rotateZ: [0, 0.4, 0],
+                    }
+              }
               transition={{
                 duration: 6,
                 repeat: Infinity,
@@ -162,10 +534,14 @@ export default function Hero() {
               }}
               className="relative z-10 h-[410px] w-[410px] lg:h-[500px] lg:w-[500px]"
             >
+              <div className="absolute inset-[15%] rounded-full bg-[radial-gradient(circle,rgba(124,156,255,0.16),transparent_68%)] blur-2xl" />
+
               <img
                 src="/images/akash.png"
                 alt="Akash Srivastava"
                 className="
+                  relative
+                  z-10
                   h-full
                   w-full
                   object-contain
@@ -175,18 +551,27 @@ export default function Hero() {
               />
             </motion.div>
 
-            {/* Single orbit accent */}
-            <motion.span
-              animate={{ rotate: 360 }}
+            {/* FRONT ENERGY NODE */}
+            <motion.div
+              animate={
+                reduceMotion
+                  ? undefined
+                  : {
+                      scale: [1, 1.15, 1],
+                    }
+              }
               transition={{
-                duration: 14,
+                duration: 2.5,
                 repeat: Infinity,
-                ease: "linear",
+                ease: "easeInOut",
               }}
-              className="absolute z-20 h-[520px] w-[520px] lg:h-[620px] lg:w-[620px]"
+              className="absolute bottom-[13%] right-[17%] z-20 flex items-center gap-2"
             >
-              <span className="absolute right-[8%] top-[10%] block h-2 w-2 rounded-full bg-[#E28A78] shadow-[0_0_18px_rgba(226,138,120,0.6)]" />
-            </motion.span>
+              <span className="h-1.5 w-1.5 rounded-full bg-[#E28A78] shadow-[0_0_14px_#E28A78]" />
+              <span className="font-mono text-[7px] uppercase tracking-[0.25em] text-white/35">
+                Building
+              </span>
+            </motion.div>
           </motion.div>
         </div>
 
@@ -217,3 +602,6 @@ export default function Hero() {
     </section>
   );
 }
+
+
+
